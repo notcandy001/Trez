@@ -1,5 +1,5 @@
 [workspace]
-members = ["shell"]
+members = ["color-engine","shell"]
 resolver = "2"
 
 [workspace.package]
