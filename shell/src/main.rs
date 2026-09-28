@@ -1,4 +1,9 @@
 mod core;
+mod desktop;
+mod ipc;
+mod renderer;
+mod theme;
+mod ui;
 mod wayland;
 
 use anyhow::Result;

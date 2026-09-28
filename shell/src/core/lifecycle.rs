@@ -1,6 +1,8 @@
 use anyhow::Result;
 use tracing::{info, warn};
 
+use crate::ipc::IpcServer;
+use crate::theme::ThemeManager;
 use crate::wayland::WaylandRuntime;
 
 use super::{
@@ -12,6 +14,8 @@ pub struct Runtime {
     config: Config,
     events: EventBus,
     wayland: Option<WaylandRuntime>,
+    theme: ThemeManager,
+    ipc: Option<IpcServer>,
     running: bool,
 }
 
@@ -21,12 +25,17 @@ impl Runtime {
             config,
             events: EventBus::new(),
             wayland: None,
+            theme: ThemeManager::new(),
+            ipc: None,
             running: false,
         }
     }
 
     pub fn start(&mut self) -> Result<()> {
         self.running = true;
+        let ipc_server = IpcServer::new();
+        ipc_server.start(self.events.sender())?;
+        self.ipc = Some(ipc_server);
         info!(log_level = %self.config.runtime.log_level, "shell runtime started");
         Ok(())
     }
@@ -46,6 +55,10 @@ impl Runtime {
         while let Some(event) = self.events.try_recv() {
             match event {
                 Event::Shutdown => self.running = false,
+                Event::ThemeUpdated(theme) => {
+                    info!("Applying new theme");
+                    self.theme.update(theme);
+                }
             }
         }
     }

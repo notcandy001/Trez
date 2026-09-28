@@ -1,8 +1,9 @@
 use std::sync::mpsc::{self, Receiver, Sender};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Event {
     Shutdown,
+    ThemeUpdated(color_engine::Theme),
 }
 
 pub struct EventBus {
